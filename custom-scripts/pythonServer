@@ -5,23 +5,21 @@
 
 case "$1" in
 start)
-printf "Configuring host communication."
-/usr/bin/python /root/simple_http_server.py
+printf "Starting Python Web Server"
+ps -A
 
-[ $? = 0 ] && echo "OK" || echo "FAIL"
 ;;
 stop)
-printf "Shutdown host communication. "
+printf "Shutdowning Python Web Server"
 
-[ $? = 0 ] && echo "OK" || echo "FAIL"
 ;;
-restart|reload)
-"$0" stop
-"$0" start
+restart)
+printf "Restarting Python Web Server"
+
 ;;
 *)
-echo "Usage: $0 {start|stop|restart}"
-exit 1
-esac
+echo "Error : Python Web Server"
 
+;;	
+esac
 exit $?
