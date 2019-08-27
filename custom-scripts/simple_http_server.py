@@ -42,7 +42,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # CPU  Usage
         s.wfile.write("<p>CPU Usage...")
-        #s.wfile.write(os.popen('cat /proc/stat | grep "cpu" | awk \'{print ($2+$4)*100/($2+$4+$5)}\'').read())
+        #s.wfile.write(os.popen('cat /proc/stat | grep "cpu" | awk \'{print ($2+$4)*100/($2+$4+$5)}\'').read()) # user + nice + system * 100 / 10000
         s.wfile.write("</p>")
 
         # Total Memory
