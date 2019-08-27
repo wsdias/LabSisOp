@@ -1,0 +1,18 @@
+#!/bin/sh
+
+case "$1" in
+start)
+printf "Starting Python Web Server"
+python /usr/bin/simple_http_server.py &
+[ $? = 0 ] && echo " - OK: Python Web Server On" || echo " - Failed to start Python Web Server"
+;;
+stop)
+printf "Shutdowning Python Web Server"
+kill -9 `pidof python /usr/bin/simple_http_server.py`
+[ $? = 0 ] && echo " - OK: Python Web Server Off" || echo " - Failed to shutdown Python Web Server"
+;;
+*)
+echo "Error : Python Web Server"
+;;	
+esac
+exit $?

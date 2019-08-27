@@ -22,12 +22,12 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # Date
         s.wfile.write("<p>Date: ")
-        s.wfile.write(os.popen('date').read())
+        s.wfile.write(os.popen('TZ=GMT+3 date').read())
         s.wfile.write("</p>")
 
         # Uptime
         s.wfile.write("<p>Uptime: ")
-        s.wfile.write(os.popen('cat /proc/uptime | awk \'{print $1/3600}\'').read())
+        s.wfile.write(os.popen('cat /proc/uptime | awk \'{print int($1/3600)"h:"int($1/60)"m:"int($1%60)"s"}\'').read())
         s.wfile.write("</p>")
 
         # CPU Model
@@ -64,7 +64,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # System Processes
         s.wfile.write("<p>System Processes: ")
-        s.wfile.write(os.popen('ps -A | awk \'{print $1 " - " $3}\'').read())
+        s.wfile.write(os.popen('ps -A | awk \'{print "<p>"$1 " - " $3"</p>"}\'').read())
         s.wfile.write("</p>")    
 
         s.wfile.write("</body></html>")
