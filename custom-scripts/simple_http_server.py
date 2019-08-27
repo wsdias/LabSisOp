@@ -1,3 +1,4 @@
+import os
 import time
 import BaseHTTPServer
 
@@ -16,12 +17,58 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         s.send_response(200)
         s.send_header("Content-type", "text/html")
         s.end_headers()
-        s.wfile.write("<html><head><title>Title goes here.</title></head>")
-        s.wfile.write("<body><p>This is a test.</p>")
-        # If someone went to "http://something.somewhere.net/foo/bar/",
-        # then s.path equals "/foo/bar/".
-        s.wfile.write("<p>You accessed path: %s</p>" % s.path)
+        s.wfile.write("<html><head><title>Target Information</title></head>")
+        s.wfile.write("<body>")
+
+        # Date
+        s.wfile.write("<p>Date: ")
+        s.wfile.write(os.popen('date').read())
+        s.wfile.write("</p>")
+
+        # Uptime
+        s.wfile.write("<p>Uptime: ")
+        s.wfile.write(os.popen('cat /proc/uptime | awk \'{print $1/3600}\'').read())
+        s.wfile.write("</p>")
+
+        # CPU Model
+        s.wfile.write("<p>CPU ")
+        s.wfile.write(os.popen('cat /proc/cpuinfo | grep "model name"').read())
+        s.wfile.write("</p>")
+
+        # CPU Frequency
+        s.wfile.write("<p>")
+        s.wfile.write(os.popen('cat /proc/cpuinfo | grep "cpu MHz"').read())
+        s.wfile.write("</p>")
+
+        # CPU  Usage
+        s.wfile.write("<p>CPU Usage...")
+        #s.wfile.write(os.popen('').read())
+        s.wfile.write("</p>")
+
+        # Total Memory
+        s.wfile.write("<p>Total Memory: ")
+        s.wfile.write(os.popen('cat /proc/meminfo | grep "MemTotal" | awk \'{print $2/1024}\'').read())
+        s.wfile.write(" MB</p>")
+
+        # Memory Usage
+        s.wfile.write("<p>Memory Usage: ")
+        a = os.popen('cat /proc/meminfo | grep "MemTotal" | awk \'{print $2/1024}\'').read()
+        b = os.popen('cat /proc/meminfo | grep "MemAvailable" | awk \'{print $2/1024}\'').read()
+        s.wfile.write(float(a)-float(b))
+        s.wfile.write(" MB</p>")
+
+        # System Version
+        s.wfile.write("<p>System Version: ")
+        s.wfile.write(os.popen('cat /proc/version').read())
+        s.wfile.write("</p>")
+
+        # System Processes
+        s.wfile.write("<p>System Processes: ")
+        s.wfile.write(os.popen('ps -A | awk \'{print $1 " - " $3}\'').read())
+        s.wfile.write("</p>")    
+
         s.wfile.write("</body></html>")
+
 
 if __name__ == '__main__':
     server_class = BaseHTTPServer.HTTPServer
