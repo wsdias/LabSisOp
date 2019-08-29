@@ -64,7 +64,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # System Processes
         s.wfile.write("<p>System Processes : ")
-        s.wfile.write(os.popen('ps -A | awk \'{print "<p style=text-indent:5em;>" $1 " - " $3 " " $4 "</p>"}\'').read())
+        s.wfile.write(os.popen('ps -A | awk \'{print "<p style=text-indent:5em;>" $1 " - " $3 "</p>"}\'').read())
         s.wfile.write("</p>")    
 
         s.wfile.write("</body></html>")
