@@ -3,7 +3,7 @@ import time
 import BaseHTTPServer
 
 
-HOST_NAME = '192.168.1.10' # !!!REMEMBER TO CHANGE THIS!!!
+HOST_NAME = '192.168.1.10'
 PORT_NUMBER = 8000
 
 
@@ -41,9 +41,9 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         s.wfile.write("</p>")
 
         # CPU  Usage
-        #s.wfile.write("<p>CPU Usage...")
-        #s.wfile.write(os.popen('cat /proc/stat | grep "cpu" | awk \'{print ($2+$4)*100/($2+$4+$5)}\'').read()) # user + nice + system * 100 / 10000
-        #s.wfile.write("</p>")
+        s.wfile.write("<p>CPU Usage: ")
+        s.wfile.write(os.popen('iostat -c | awk \'{print 100 - $7}\'').read().split('\n')[2])
+        s.wfile.write("%</p>")
 
         # Total Memory
         s.wfile.write("<p>Total Memory: ")
