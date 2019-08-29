@@ -3,7 +3,7 @@ import time
 import BaseHTTPServer
 
 
-HOST_NAME = '192.168.1.10'
+HOST_NAME = '10.0.2.15'
 PORT_NUMBER = 8000
 
 
@@ -64,7 +64,7 @@ class MyHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         # System Processes
         s.wfile.write("<p>System Processes : ")
-        s.wfile.write(os.popen('ps -A | awk \'{print "<p style=text-indent:5em;>" $1 " - " $3 " " $4 "</p>"}\'').read())
+        s.wfile.write(os.popen('ps -A | awk \'{print "<p style=text-indent:5em;>" $1 " - " $3 " " $4 " " $5 "</p>"}\'').read())
         s.wfile.write("</p>")    
 
         s.wfile.write("</body></html>")
