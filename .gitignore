@@ -4,6 +4,7 @@
 /.config.old
 /..config.tmp
 /.config
+/dl/linux-master.tar.gz
 *.depend
 *.o
 /*.patch
