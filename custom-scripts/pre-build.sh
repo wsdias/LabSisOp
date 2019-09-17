@@ -12,3 +12,8 @@ cp $BASE_DIR/../custom-scripts/simple_http_server.py $BASE_DIR/target/usr/bin
 BUILDROOT_DIR=$BASE_DIR/..
 COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
 $COMPILER -o $BUILDROOT_DIR/output/target/bin/syscall_test $BUILDROOT_DIR/custom-scripts/syscall_test.c
+
+#Compile the syscall_sleep_test.c
+BUILDROOT_DIR=$BASE_DIR/..
+COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
+$COMPILER -o $BUILDROOT_DIR/output/target/bin/syscall_sleep_test $BUILDROOT_DIR/custom-scripts/syscall_sleep_test.c
