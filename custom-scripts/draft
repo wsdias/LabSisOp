@@ -1,0 +1,10 @@
+struct element_labsisop{
+
+    int value;
+    char param;
+    struct list_head node;
+}
+
+struct element_labsisop *tc;
+tc = kzalloc(size(struct element_labsisop), GFP_KERNEL);
+list_add_tail(&tc->node, &elements_labsisop);
