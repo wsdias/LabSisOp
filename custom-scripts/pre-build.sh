@@ -17,3 +17,6 @@ $COMPILER -o $BUILDROOT_DIR/output/target/bin/syscall_test $BUILDROOT_DIR/custom
 BUILDROOT_DIR=$BASE_DIR/..
 COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
 $COMPILER -o $BUILDROOT_DIR/output/target/bin/syscall_sleep_test $BUILDROOT_DIR/custom-scripts/syscall_sleep_test.c
+
+# Compile new driver
+make -C $BASE_DIR/../modules/simple_driver/

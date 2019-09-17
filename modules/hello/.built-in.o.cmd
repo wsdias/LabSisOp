@@ -1,0 +1,1 @@
+cmd_/home/labredes/.config/linuxdistro/buildroot/modules/hello/built-in.o :=  rm -f /home/labredes/.config/linuxdistro/buildroot/modules/hello/built-in.o; ar rcSTPD /home/labredes/.config/linuxdistro/buildroot/modules/hello/built-in.o

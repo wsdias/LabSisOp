@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define SYSCALL_PROCESSINFO	385
+#define SYSCALL_PROCESSSLEEPINFO	386
 
 int main(int argc, char** argv)
 {  
