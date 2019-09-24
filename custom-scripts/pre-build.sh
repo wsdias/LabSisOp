@@ -20,3 +20,5 @@ $COMPILER -o $BUILDROOT_DIR/output/target/bin/syscall_sleep_test $BUILDROOT_DIR/
 
 # Compile new driver
 make -C $BASE_DIR/../modules/simple_driver/
+
+make -C $BASE_DIR/../modules/simple_driver_modified/
