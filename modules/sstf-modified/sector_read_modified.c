@@ -1,4 +1,3 @@
-
 /*
  * Simple disc I/O generator
  */

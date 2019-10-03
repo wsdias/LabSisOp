@@ -1,0 +1,1 @@
+cmd_/home/labredes/.config/linuxdistro/buildroot/modules/sstf-modified/built-in.o :=  rm -f /home/labredes/.config/linuxdistro/buildroot/modules/sstf-modified/built-in.o; ar rcSTPD /home/labredes/.config/linuxdistro/buildroot/modules/sstf-modified/built-in.o
