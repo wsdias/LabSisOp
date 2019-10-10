@@ -11,6 +11,10 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
+struct request *lastSector = NULL;
+unsigned long lastDist = 0;
+
+
 /* SSTF data structure. */
 struct sstf_data {
 	struct list_head queue;
@@ -34,8 +38,21 @@ static int sstf_dispatch(struct request_queue *q, int force){
 	 * Antes de retornar da função, imprima o sector que foi atendido.
 	 */
 
+    //list_for_each_entry(struct request, &nd->queue , queuelist)
+
 	rq = list_first_entry_or_null(&nd->queue, struct request, queuelist);
 	if (rq) {
+        //lastSector = blk_rq_pos(rq);
+        list_for_each(0, &nd->queue){
+            
+            // pega num nodo
+            // verifica distancia
+            // se last != null
+            // compara com last
+            // se new.dist < old.dist
+                
+        }
+
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
 		printk(KERN_EMERG "[SSTF] dsp %c %lu\n", direction, blk_rq_pos(rq));
