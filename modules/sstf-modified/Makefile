@@ -1,4 +1,4 @@
-obj-m := sstf-modified.o
+obj-m := sstf-iosched_modified.o
 BUILDROOT_DIR := ../..
 KDIR := $(BUILDROOT_DIR)/output/build/linux-custom
 COMPILER := $(BUILDROOT_DIR)/output/host/bin/i686-buildroot-linux-uclibc-gcc
@@ -15,6 +15,6 @@ clean:
 	rm -f *.o *.ko .*.cmd
 	rm -f modules.order
 	rm -f Module.symvers
-	rm -f sstf-modified.mod.c
+	rm -f sstf-iosched_modified.mod.c
 	rm -f sector_read_modified
 

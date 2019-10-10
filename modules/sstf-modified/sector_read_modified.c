@@ -1,3 +1,4 @@
+
 /*
  * Simple disc I/O generator
  */
@@ -13,19 +14,31 @@
 #define BUFFER_LENGTH 512
 #define DISK_SZ	1073741824
 
+int ret, fd, pid;
+char buf[BUFFER_LENGTH];
+
+void sectorRead(int flag){
+
+    int i;
+    unsigned int pos;
+
+	srand(getpid());
+
+	for (i = 0; i < 10; i++){
+        pos = (rand() % (DISK_SZ >> 9));
+	    printf("%d | Sector: %lu\n", flag, pos);
+		lseek(fd, pos * 512, SEEK_SET);
+		read(fd, buf, 100);
+    }
+}
+
 int main(){
-	int ret, fd, pid, i;
-    //unsigned int posi[5] = {1261960, 689984, 64968, 994448, 1603288};
-    unsigned int posi[12] = {1,2,3,4,5,6,7,8,9,10,11,12};
-	unsigned int pos, flag, min, max;
-	char buf[BUFFER_LENGTH];
+
 
 	printf("Starting sector read example...\n");
 
 	printf("Cleaning disk cache...\n");
 	system("echo 3 > /proc/sys/vm/drop_caches");
-
-	srand(getpid());
 
 	fd = open("/dev/sdb", O_RDWR);
 	if (fd < 0){
@@ -35,30 +48,40 @@ int main(){
 
 	strcpy(buf, "hello world!");
 
-	for (i = 0; i < 12; i++){
+    int flag = 0;
 
-        if (i % 4 == 0){
+    if (fork() == 0){
 
+        sectorRead(0);
+    }
+    else{
+
+        flag++;
+        if (fork() == 0){
+
+            sectorRead(flag);
+        }
+        else{
+
+            flag++;
             if (fork() == 0){
 
-                flag = 1;
-                i += 4;
-                max = i + 3;
-            }
-            else{
-
-                max = i + 3;
-                flag = 0;
+                sectorRead(flag);
             }
         }
+    }
+    
+    
 
-        if (i == max) i = 12;
+    //for (i = 0; i < 50; i++){
+	//	pos = (rand() % (DISK_SZ >> 9));
+	//	printf("Sector: %lu\n", pos);
+	//	/* Set position */
+	//	lseek(fd, pos * 512, SEEK_SET);
+	//	/* Peform read. */
+	//	read(fd, buf, 100);
+	//}
 
-		printf("Flag: %lu | Sector: %lu\n", flag, posi[i]);
-
-	    lseek(fd, posi[i] * 512, SEEK_SET);
-	    read(fd, buf, 100);
-	}
 	close(fd);
 
 	return 0;
