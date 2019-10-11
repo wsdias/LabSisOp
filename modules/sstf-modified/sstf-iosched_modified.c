@@ -11,8 +11,8 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
-struct request *lastSector = NULL;
-unsigned long lastDist = 0;
+struct request *actualRequest = NULL;
+unsigned long long newSector, lastSector, newDist, lastDist = 0;
 
 
 /* SSTF data structure. */
@@ -28,6 +28,7 @@ static void sstf_merged_requests(struct request_queue *q, struct request *rq,
 
 /* Esta função despacha o próximo bloco a ser lido. */
 static int sstf_dispatch(struct request_queue *q, int force){
+
 	struct sstf_data *nd = q->elevator->elevator_data;
 	char direction = 'R';
 	struct request *rq;
@@ -38,21 +39,30 @@ static int sstf_dispatch(struct request_queue *q, int force){
 	 * Antes de retornar da função, imprima o sector que foi atendido.
 	 */
 
-    //list_for_each_entry(struct request, &nd->queue , queuelist)
-
 	rq = list_first_entry_or_null(&nd->queue, struct request, queuelist);
 	if (rq) {
-        //lastSector = blk_rq_pos(rq);
-        list_for_each(0, &nd->queue){
-            
-            // pega num nodo
-            // verifica distancia
-            // se last != null
-            // compara com last
-            // se new.dist < old.dist
-                
-        }
 
+        // if (tamanho list > 1)
+        //{
+            list_for_each_entry(actualRequest, &nd->queue, queuelist){
+
+                //printk("LIST_FOR_EACH_ENTRY: %llu\n", blk_rq_pos(rq));
+                //printk("%lu\n", rq->__sector);
+
+                newSector = blk_rq_pos(rq);
+                newDist = lastSector - newSector;
+
+                if (newDist < 0) newDist *= -1;
+
+                if (newDist < lastDist){
+
+                    lastDist = newDist;
+                    lastSector = newSector;
+                }
+            }
+        //}
+
+        // Tentar excluir elemento em posição arbitrária
 		list_del_init(&rq->queuelist);
 		elv_dispatch_sort(q, rq);
 		printk(KERN_EMERG "[SSTF] dsp %c %lu\n", direction, blk_rq_pos(rq));
