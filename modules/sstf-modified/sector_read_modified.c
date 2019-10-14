@@ -9,36 +9,25 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
 
 #define BUFFER_LENGTH 512
 #define DISK_SZ	1073741824
 
-int ret, fd, pid;
-char buf[BUFFER_LENGTH];
-
-void sectorRead(int flag){
-
-    int i;
-    unsigned int pos;
-
-	srand(getpid());
-
-	for (i = 0; i < 10; i++){
-        pos = (rand() % (DISK_SZ >> 9));
-	    printf("%d | Sector: %lu\n", flag, pos);
-		lseek(fd, pos * 512, SEEK_SET);
-		read(fd, buf, 100);
-    }
-}
-
 int main(){
+	int ret, fd, pid, i;
+    int lim, factor, flag;
+	unsigned int pos;
+	char buf[BUFFER_LENGTH];
 
+    // Cria 5 forks
+    for (i = 0; i < 4; i++) fork();
 
 	printf("Starting sector read example...\n");
 
 	printf("Cleaning disk cache...\n");
 	system("echo 3 > /proc/sys/vm/drop_caches");
+
+	srand(getpid());
 
 	fd = open("/dev/sdb", O_RDWR);
 	if (fd < 0){
@@ -48,39 +37,18 @@ int main(){
 
 	strcpy(buf, "hello world!");
 
-    int flag = 0;
+    // Faz parent e child(ren) esperarem
+    usleep(2000000);
 
-    if (fork() == 0){
-
-        sectorRead(0);
-    }
-    else{
-
-        flag++;
-        if (fork() == 0){
-
-            sectorRead(flag);
-        }
-        else{
-
-            flag++;
-            if (fork() == 0){
-
-                sectorRead(flag);
-            }
-        }
-    }
-    
-    
-
-    //for (i = 0; i < 50; i++){
-	//	pos = (rand() % (DISK_SZ >> 9));
-	//	printf("Sector: %lu\n", pos);
-	//	/* Set position */
-	//	lseek(fd, pos * 512, SEEK_SET);
-	//	/* Peform read. */
-	//	read(fd, buf, 100);
-	//}
+    // Faz leitura de setores aleatórios
+	for (i = 0; i < 10; i++){
+		pos = (rand() % (DISK_SZ >> 9));
+		//printf("Sector: %lu\n", pos);
+		/* Set position */
+		lseek(fd, pos * 512, SEEK_SET);
+		/* Peform read. */
+		read(fd, buf, 100);
+	}
 
 	close(fd);
 

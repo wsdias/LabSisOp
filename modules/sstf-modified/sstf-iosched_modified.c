@@ -11,9 +11,8 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
-struct request *actualRequest = NULL;
-unsigned long long newSector, lastSector, newDist, lastDist = 0;
-
+// Setor atendido no último dispatch
+unsigned long long lastSector;
 
 /* SSTF data structure. */
 struct sstf_data {
@@ -31,41 +30,48 @@ static int sstf_dispatch(struct request_queue *q, int force){
 
 	struct sstf_data *nd = q->elevator->elevator_data;
 	char direction = 'R';
-	struct request *rq;
-
-	/* Aqui deve-se retirar uma requisição da fila e enviá-la para processamento.
-	 * Use como exemplo o driver noop-iosched.c. Veja como a requisição é tratada.
-	 *
-	 * Antes de retornar da função, imprima o sector que foi atendido.
-	 */
+	struct request *rq, *actualRequest, *newRequest;
+    unsigned long long newDist, minDist, clstSector, currentSector;
 
 	rq = list_first_entry_or_null(&nd->queue, struct request, queuelist);
 	if (rq) {
 
-        // if (tamanho list > 1)
-        //{
-            list_for_each_entry(actualRequest, &nd->queue, queuelist){
+        minDist = ULLONG_MAX;
+        newRequest = rq;
+        clstSector = NULL;
 
-                //printk("LIST_FOR_EACH_ENTRY: %llu\n", blk_rq_pos(rq));
-                //printk("%lu\n", rq->__sector);
+        list_for_each_entry(actualRequest, &nd->queue, queuelist){
 
-                newSector = blk_rq_pos(rq);
-                newDist = lastSector - newSector;
+            currentSector = blk_rq_pos(actualRequest);
+            newDist = lastSector - currentSector;
 
-                if (newDist < 0) newDist *= -1;
+            if (newDist < 0) newDist *= -1;
 
-                if (newDist < lastDist){
+            if (newDist < minDist){
 
-                    lastDist = newDist;
-                    lastSector = newSector;
-                }
+                minDist = newDist;
+                clstSector = currentSector;
+                newRequest = actualRequest;
             }
-        //}
+        }
 
-        // Tentar excluir elemento em posição arbitrária
-		list_del_init(&rq->queuelist);
-		elv_dispatch_sort(q, rq);
-		printk(KERN_EMERG "[SSTF] dsp %c %lu\n", direction, blk_rq_pos(rq));
+		//list_del_init(&rq->queuelist);
+        //printk("NEW_REQ: %llu\n", blk_rq_pos(newRequest));
+        list_del(&newRequest->queuelist);
+
+		//elv_dispatch_sort(q, rq);
+		elv_dispatch_sort(q, newRequest);
+
+        lastSector = clstSector;
+
+        /*printk("__DIST: %llu, __CLST: %llu, [", minDist, clstSector);
+        list_for_each_entry(actualRequest, &nd->queue, queuelist){
+
+            printk("%llu", blk_rq_pos(actualRequest));
+        }
+        printk("]\n");*/
+
+		printk(KERN_EMERG "[SSTF] dsp %c %lu\n", direction, blk_rq_pos(newRequest));
 
 		return 1;
 	}
