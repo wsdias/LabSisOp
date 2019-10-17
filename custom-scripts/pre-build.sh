@@ -22,3 +22,6 @@ $COMPILER -o $BUILDROOT_DIR/output/target/bin/syscall_sleep_test $BUILDROOT_DIR/
 make -C $BASE_DIR/../modules/simple_driver/
 
 make -C $BASE_DIR/../modules/simple_driver_modified/
+
+# FTrace
+cp $BASE_DIR/../custom-scripts/fstab $BASE_DIR/target/etc
