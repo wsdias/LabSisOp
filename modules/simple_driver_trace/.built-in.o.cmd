@@ -1,0 +1,1 @@
+cmd_/home/labredes/.config/linuxdistro/buildroot/modules/simple_driver_trace/built-in.o :=  rm -f /home/labredes/.config/linuxdistro/buildroot/modules/simple_driver_trace/built-in.o; ar rcSTPD /home/labredes/.config/linuxdistro/buildroot/modules/simple_driver_trace/built-in.o

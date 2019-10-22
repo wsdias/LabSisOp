@@ -1,0 +1,3 @@
+/home/labredes/.config/linuxdistro/buildroot/modules/simple_driver_trace/simple_driver_trace.ko
+/home/labredes/.config/linuxdistro/buildroot/modules/simple_driver_trace/simple_driver_trace.o
+
