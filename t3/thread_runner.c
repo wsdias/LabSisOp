@@ -5,9 +5,9 @@
 #include <linux/sched.h>
 #include <string.h>
 
-unsigned int nThreads, bufferSize, priority, howMany;
+unsigned int nThreads = 0, bufferSize = 0, priority = 0, bufferIndex = 0;
 char *buffer, *initBufferPos, *bufferPos, *policy;
-sem_t mutex, toPrint, threadSync;
+sem_t mutex, threadSync;
 
 void * threadFunction(unsigned int threadId);
 void printBuffer();
@@ -23,7 +23,7 @@ int main (int argc, char *argv[]){
 	if (argc == 5){
 
 		nThreads = atoi(argv[1]);
-        bufferSize = atoi(argv[2]);
+        bufferSize = atoi(argv[2]) * 1024;
         policy = argv[3];
         priority = atoi(argv[4]);
 
@@ -32,16 +32,15 @@ int main (int argc, char *argv[]){
         printf("policy: %s\n", policy);
         printf("priority: %u\n", priority);
 
-		howMany = 0;
-		buffer = malloc(sizeof(char) * 1024 * bufferSize); // Aloca o buffer
-		bufferPos = initBufferPos = &buffer; // Guarda posicao inicial do buffer
+		buffer = (char*)malloc(sizeof(char) * bufferSize); // Aloca o buffer
+		bufferPos = &buffer; // Guarda posicao inicial do buffer
+		initBufferPos = (char*) buffer;
 
-		printf("%lu\n", &buffer);
-		//printf("%lu\n", );
+		printf("bufferAddress: 0x%x\n", &buffer);
+
 
 		// Inicializa semaforos
 		sem_init(&mutex, 0, 1);
-		sem_init(&toPrint, 0, 0);
 		sem_init(&threadSync, 0, 0);
 
 		// Define codigo da politica
@@ -62,8 +61,21 @@ int main (int argc, char *argv[]){
 		for (i = 0; i < nThreads; i++)
 			 sem_post(&threadSync);
 
+		// Aguarda finalização das threads
+		for (i = 0; i < nThreads; i++)
+			pthread_join(threads[i], NULL);
+
 		// Imprime buffer ja resumido
-		printBuffer();
+		//printf("%x ", *bufferPos);
+
+		/*for (i = 1024; i > 0; i--) {
+			char l = *(bufferPos-i);
+			printf("%c ", l);
+		}*/
+
+		for (i = 0; i < bufferSize; i++)
+			printf("%c ", buffer[i]);
+
 	}
 
 	// Encerra main, mantem demais threads em execucao
@@ -76,28 +88,32 @@ void * threadFunction(unsigned int threadId){
 	unsigned int i;
 
 	sem_wait(&threadSync);
-	printf("Running %c\n", (char)(threadId+65));
+	char myId = (char)(threadId+65);
 
-	//for (i = 0; i < 10; i++){
+	printf("Running %c\n", myId);
+
+	while(1) {
 
 		sem_wait(&mutex);
-		*bufferPos = (char)(threadId+65);
+
+		if (bufferIndex >= bufferSize) {
+			sem_post(&mutex);
+			break;
+		}
+
+		*bufferPos = myId;
+		//printf("%x ", *bufferPos);
 		bufferPos++;
-		*bufferPos = (char)(threadId+65);
-		bufferPos++;
-		*bufferPos = (char)(threadId+65);
-		bufferPos++;
+		bufferIndex++;
 
 		sem_post(&mutex);
-	//}
 
-	howMany += 1;
-	if (howMany == nThreads) sem_post(&toPrint);
+	}	
+
 }
 
 void printBuffer(){
 
-	sem_wait(&toPrint);
 	printf("Printing buffer...\n");
 	while (bufferPos - initBufferPos != 0){
 
