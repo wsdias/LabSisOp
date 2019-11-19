@@ -5,122 +5,102 @@
 #include <linux/sched.h>
 #include <string.h>
 
-unsigned int nThreads = 0, bufferSize = 0, priority = 0, bufferIndex = 0;
-char *buffer, *initBufferPos, *bufferPos, *policy;
-sem_t mutex, threadSync;
+int nThreads, bufferSize, priority, bufferIndex, *occurrences;
+char *buffer, *policy;
+sem_t mutex, sync;
 
-void * threadFunction(unsigned int threadId);
-void printBuffer();
+void * thread(int id);
+void print();
 void print_sched(int policy);
 int setpriority(pthread_t *thr, int newpolicy, int newpriority);
-int getPolicyCode(char* policy);
+int policyCode(char* policy);
 
 int main (int argc, char *argv[]){
 
-	unsigned int i;
-	int policyCode;
+	int i;
 
 	if (argc == 5){
 
 		nThreads = atoi(argv[1]);
-        bufferSize = atoi(argv[2]) * 1024;
-        policy = argv[3];
-        priority = atoi(argv[4]);
+		bufferSize = atoi(argv[2]) * 1024;
+		policy = argv[3];
+		priority = atoi(argv[4]);
 
-        printf("nThreads: %u\n", nThreads);
-        printf("bufferSize: %u\n", bufferSize);
-        printf("policy: %s\n", policy);
-        printf("priority: %u\n", priority);
+		//printf("nThreads: %u\n", nThreads);
+		//printf("bufferSize: %u bytes\n", bufferSize);
+		//printf("policy: %s\n", policy);
+		//printf("priority: %u\n", priority);
 
-		buffer = (char*)malloc(sizeof(char) * bufferSize); // Aloca o buffer
-		bufferPos = &buffer; // Guarda posicao inicial do buffer
-		initBufferPos = (char*) buffer;
-
-		printf("bufferAddress: 0x%x\n", &buffer);
-
-
-		// Inicializa semaforos
-		sem_init(&mutex, 0, 1);
-		sem_init(&threadSync, 0, 0);
-
-		// Define codigo da politica
-		policyCode = getPolicyCode(policy);
-
-		// Cria as threads
+		buffer = malloc(sizeof(char) * bufferSize);
+		occurrences = malloc(sizeof(int) * nThreads);
+		for (i = 0; i < nThreads; i++)
+			occurrences[i] = 0;
 		pthread_t threads[nThreads];
+		sem_init(&mutex, 0, 1);
+		sem_init(&sync, 0, 0);
+		bufferIndex = 0;
+
+		sleep(3);
+
 		for (i = 0; i < nThreads; i++)
-			pthread_create(&threads[i], NULL, threadFunction, i);
+			pthread_create(&threads[i], NULL, thread, i);
 
-		// Define prioridade de cada thread
 		for (i = 0; i < nThreads; i++)
-			setpriority(&threads[i], policyCode, priority);
+			setpriority(&threads[i], policyCode(policy), priority);
 
-		printf("Definiu a prioridade de cada thread...\n");
-
-		// Libera threads para execucao
 		for (i = 0; i < nThreads; i++)
-			 sem_post(&threadSync);
+			sem_post(&sync);
 
-		// Aguarda finalização das threads
 		for (i = 0; i < nThreads; i++)
 			pthread_join(threads[i], NULL);
 
-		// Imprime buffer ja resumido
-		//printf("%x ", *bufferPos);
-
-		/*for (i = 1024; i > 0; i--) {
-			char l = *(bufferPos-i);
-			printf("%c ", l);
-		}*/
-
-		for (i = 0; i < bufferSize; i++)
-			printf("%c ", buffer[i]);
-
+		print();
 	}
 
-	// Encerra main, mantem demais threads em execucao
 	pthread_exit(NULL);
 	return 0;
 }
 
-void * threadFunction(unsigned int threadId){
+void * thread(int id){
 
-	unsigned int i;
-
-	sem_wait(&threadSync);
-	char myId = (char)(threadId+65);
-
-	printf("Running %c\n", myId);
-
-	while(1) {
+	sem_wait(&sync);
+	while(1){
 
 		sem_wait(&mutex);
+		if (bufferIndex == bufferSize - 1){
 
-		if (bufferIndex >= bufferSize) {
+			//printf("Saiu: %d  |  %d\n", id, bufferIndex);
 			sem_post(&mutex);
 			break;
 		}
-
-		*bufferPos = myId;
-		//printf("%x ", *bufferPos);
-		bufferPos++;
+		buffer[bufferIndex] = (char)(id + 65);
 		bufferIndex++;
-
 		sem_post(&mutex);
-
-	}	
-
+	}
 }
 
-void printBuffer(){
+void print(){
 
-	printf("Printing buffer...\n");
-	while (bufferPos - initBufferPos != 0){
+	char old;
+	int i;
 
-		printf("%c\n", *initBufferPos);
-		initBufferPos++;
+	i = 0;
+	printf("\n\n");
+	while(1){
+
+		if (i == bufferSize - 1) break;
+		old = buffer[i];
+		printf("%c ", old);
+		occurrences[(int)(old - 65)] += 1;
+		i++;
+		while(buffer[i] == old) i++;
 	}
-	printf("Done!\n");
+	printf("\n\n");
+
+	for (i = 0; i < nThreads; i++)
+		printf("%c = %d\n", (i + 65), occurrences[i]);
+	printf("\n");
+
 }
 
 void print_sched(int policy)
@@ -181,22 +161,15 @@ int setpriority(pthread_t *thr, int newpolicy, int newpriority)
 	return 0;
 }
 
-int getPolicyCode(char* policy){
+int policyCode(char* policy){
 
-	int policyCode;
-
-	if (strcmp(policy, "SCHED_DEADLINE") == 0) policyCode = SCHED_DEADLINE;
-	else if (strcmp(policy, "SCHED_FIFO") == 0) policyCode = SCHED_FIFO;
-	else if (strcmp(policy, "SCHED_RR") == 0) policyCode = SCHED_RR;
-	else if (strcmp(policy, "SCHED_OTHER") == 0) policyCode = SCHED_NORMAL;
-	else if (strcmp(policy, "SCHED_BATCH") == 0) policyCode = SCHED_BATCH;
-	else if (strcmp(policy, "SCHED_IDLE") == 0) policyCode = SCHED_IDLE;
-	else
-	{
-		policyCode = -1;
-		printf("POLITICA NAO ENCONTRADA!\n");
-	}
-	return policyCode;
+	if (strcmp(policy, "SCHED_DEADLINE") == 0) return SCHED_DEADLINE;
+	else if (strcmp(policy, "SCHED_FIFO") == 0) return SCHED_FIFO;
+	else if (strcmp(policy, "SCHED_RR") == 0) return SCHED_RR;
+	else if (strcmp(policy, "SCHED_OTHER") == 0) return SCHED_NORMAL;
+	else if (strcmp(policy, "SCHED_BATCH") == 0) return SCHED_BATCH;
+	else if (strcmp(policy, "SCHED_IDLE") == 0) return SCHED_IDLE;
+	else return -1;
 }
 
 

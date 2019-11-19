@@ -25,3 +25,34 @@ make -C $BASE_DIR/../modules/simple_driver_modified/
 
 # FTrace
 cp $BASE_DIR/../custom-scripts/fstab $BASE_DIR/target/etc
+
+# Thread Runner
+BUILDROOT_DIR=$BASE_DIR/..
+COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
+$COMPILER -o $BUILDROOT_DIR/output/target/bin/thread_runner $BUILDROOT_DIR/t3/thread_runner.c
+chmod +x $BASE_DIR/target/bin/thread_runner
+
+#KILLER1
+BUILDROOT_DIR=$BASE_DIR/..
+COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
+$COMPILER -o $BUILDROOT_DIR/output/target/bin/killer1 $BUILDROOT_DIR/custom-scripts/killer1.c
+chmod +x $BASE_DIR/target/bin/killer1
+
+#KILLER2
+BUILDROOT_DIR=$BASE_DIR/..
+COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
+$COMPILER -o $BUILDROOT_DIR/output/target/bin/killer2 $BUILDROOT_DIR/custom-scripts/killer2.c
+chmod +x $BASE_DIR/target/bin/killer2
+
+#KILLER3
+BUILDROOT_DIR=$BASE_DIR/..
+COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
+$COMPILER -o $BUILDROOT_DIR/output/target/bin/killer3 $BUILDROOT_DIR/custom-scripts/killer3.c
+chmod +x $BASE_DIR/target/bin/killer3
+
+# Enderecos
+BUILDROOT_DIR=$BASE_DIR/..
+COMPILER=$BUILDROOT_DIR/output/host/bin/i686-buildroot-linux-uclibc-gcc
+$COMPILER -o $BUILDROOT_DIR/output/target/bin/enderecos $BUILDROOT_DIR/custom-scripts/enderecos.c
+chmod +x $BASE_DIR/target/bin/enderecos
+

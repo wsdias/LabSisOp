@@ -1,0 +1,1 @@
+cmd_/home/labredes/.config/linuxdistro/buildroot/modules/segread/segread.ko := ld -r -m elf_i386 -T ./scripts/module-common.lds --build-id  -o /home/labredes/.config/linuxdistro/buildroot/modules/segread/segread.ko /home/labredes/.config/linuxdistro/buildroot/modules/segread/segread.o /home/labredes/.config/linuxdistro/buildroot/modules/segread/segread.mod.o ;  true
